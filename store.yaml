@@ -1,0 +1,678 @@
+openapi: 3.0.0
+
+info:
+  title: e-commerce api
+  description: this api designed for electronics ecommerce app in purpose of learning
+  version: 1.0.0
+  contact:
+    name: Wejdan
+    email: wejdanabdulaziz.alghamdi@integrify.io
+
+servers:
+  - url: http://localhost:3000/
+
+components:
+  schemas:
+    product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        category:
+          $ref: "#/components/schemas/category"
+        rating:
+          type: object
+          properties:
+            rate:
+              type: number
+            count:
+              type: number
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        passeord:
+          type: string
+    order:
+      type: object
+      properties:
+        id:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/product"
+        user:
+          $ref: "#/components/schemas/user"
+        quantity:
+          type: number
+        purchasedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: Order Status
+          example: approved
+          enum:
+            - placed
+            - approved
+            - delivered
+        complete:
+          type: boolean
+    category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+tags:
+  - name: products
+  - name: users
+  - name: orders
+  - name: categories
+
+paths:
+  /products:
+    get:
+      tags:
+        - products
+      summary: get all products
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+        - in: query
+          name: productsNo
+          required: false
+          schema:
+            type: number
+        - in: query
+          name: sortBy
+          required: false
+          schema:
+            type: string
+            enum:
+              - "name"
+              - "price"
+
+      responses:
+        "200":
+          description: products found
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/product"
+        "500":
+          description: server error
+    post:
+      tags:
+        - products
+      summary: add new product
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/product"
+
+      responses:
+        "201":
+          description: product was added
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/product"
+        "500":
+          description: server error
+
+  /products/{productId}:
+    get:
+      tags:
+        - products
+      summary: get product by id
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: product was found
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/product"
+        "404":
+          description: product was not found
+        "500":
+          description: server error
+    delete:
+      tags:
+        - products
+      summary: delete  product by id
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: product was deleted
+        "404":
+          description: product was not found
+        "500":
+          description: server error
+    put:
+      tags:
+        - products
+      summary: update  product by id
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/product"
+      responses:
+        "200":
+          description: product was deleted
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/product"
+        "404":
+          description: product was not found
+        "500":
+          description: server error
+
+  /products/searchTerm:
+    get:
+      tags:
+        - products
+      summary: get products by serach term
+      parameters:
+        - in: query
+          name: serachTerm
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: serach results
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/product"
+        "500":
+          description: server error
+
+  /users:
+    get:
+      tags:
+        - users
+      summary: get all users
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+        - in: query
+          name: usersNo
+          required: false
+          schema:
+            type: number
+
+      responses:
+        "200":
+          description: users found
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/user"
+        "500":
+          description: server error
+    post:
+      tags:
+        - users
+      summary: sign up new user
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/user"
+
+      responses:
+        "201":
+          description: user was added
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/user"
+        "500":
+          description: server error
+
+  /users/{userId}:
+    get:
+      tags:
+        - users
+      summary: get users by id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: user was found
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/user"
+        "404":
+          description: user was not found
+        "500":
+          description: server error
+    delete:
+      tags:
+        - users
+      summary: delete  user by id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: user was deleted
+        "404":
+          description: user was not found
+        "500":
+          description: server error
+    put:
+      tags:
+        - users
+      summary: update  user by id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/user"
+      responses:
+        "200":
+          description: user was deleted
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/user"
+        "404":
+          description: user was not found
+        "500":
+          description: server error
+
+  /users/searchTerm:
+    get:
+      tags:
+        - users
+      summary: get users by serach term
+      parameters:
+        - in: query
+          name: serachTerm
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: serach results
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/user"
+        "500":
+          description: server error
+
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: login by email and passeord
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                passeord:
+                  type: string
+
+      responses:
+        "200":
+          description: user was logged successful
+        "401":
+          description: unauthorized user
+        "500":
+          description: server error
+  /users/logout:
+    post:
+      tags:
+        - users
+      summary: logout
+
+      responses:
+        "200":
+          description: user was logged out successful
+        "500":
+          description: server error
+
+  /orders:
+    get:
+      tags:
+        - orders
+      summary: get all orders
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+        - in: query
+          name: ordersNo
+          required: false
+          schema:
+            type: number
+
+      responses:
+        "200":
+          description: orders found
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/order"
+        "500":
+          description: server error
+    post:
+      tags:
+        - orders
+      summary: add new order
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/order"
+
+      responses:
+        "201":
+          description: order was added
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/order"
+        "500":
+          description: server error
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - orders
+      summary: get order by id
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: order was found
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/order"
+        "404":
+          description: order was not found
+        "500":
+          description: server error
+    delete:
+      tags:
+        - orders
+      summary: delete  order by id
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: order was deleted
+        "404":
+          description: order was not found
+        "500":
+          description: server error
+    put:
+      tags:
+        - orders
+      summary: update  order by id
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/order"
+      responses:
+        "200":
+          description: order was deleted
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/order"
+        "404":
+          description: order was not found
+        "500":
+          description: server error
+
+  /orders/searchTerm:
+    get:
+      tags:
+        - orders
+      summary: get orders by serach term
+      parameters:
+        - in: query
+          name: serachTerm
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: serach results
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/order"
+        "500":
+          description: server error
+
+  /categories:
+    get:
+      tags:
+        - categories
+      summary: get all categories
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+        - in: query
+          name: categoriesNo
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: categories found
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/category"
+        "500":
+          description: server error
+    post:
+      tags:
+        - categories
+      summary: add new category
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/category"
+
+      responses:
+        "201":
+          description: category was added
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/category"
+        "500":
+          description: server error
+
+  /categories/{categoryId}:
+    get:
+      tags:
+        - categories
+      summary: get category by id
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: category was found
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/category"
+        "404":
+          description: category was not found
+        "500":
+          description: server error
+    delete:
+      tags:
+        - categories
+      summary: delete  category by id
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: category was deleted
+        "404":
+          description: category was not found
+        "500":
+          description: server error
+    put:
+      tags:
+        - categories
+      summary: update  category by id
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/Json:
+            schema:
+              $ref: "#/components/schemas/category"
+      responses:
+        "200":
+          description: category was deleted
+          content:
+            application/Json:
+              schema:
+                $ref: "#/components/schemas/category"
+        "404":
+          description: category was not found
+        "500":
+          description: server error
+
+  /categories/searchTerm:
+    get:
+      tags:
+        - categories
+      summary: get categories by serach term
+      parameters:
+        - in: query
+          name: serachTerm
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: serach results
+          content:
+            application/Json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/category"
+        "500":
+          description: server error
