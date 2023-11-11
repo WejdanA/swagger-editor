@@ -83,6 +83,7 @@ components:
 tags:
   - name: products
   - name: users
+  - name: authorization
   - name: orders
   - name: categories
 
@@ -369,11 +370,11 @@ paths:
         "500":
           description: server error
 
-  /users/login:
+  /auth/login:
     post:
       tags:
-        - users
-      summary: login by email and passeord
+        - authorization
+      summary: login by email and password
       requestBody:
         content:
           application/Json:
@@ -392,10 +393,10 @@ paths:
           description: unauthorized user
         "500":
           description: server error
-  /users/logout:
+  /auth/logout:
     post:
       tags:
-        - users
+        - authorization
       summary: logout
 
       responses:
